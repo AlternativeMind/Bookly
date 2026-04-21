@@ -8,6 +8,8 @@ import DesignView from './DesignView'
 import ExamplesView from './ExamplesView'
 import HistoryView from './HistoryView'
 import SystemInfoView from './SystemInfoView'
+import TraceOverlay from './TraceOverlay'
+import { TraceProvider } from '@/lib/trace-context'
 import { clearSession, getSession } from '@/lib/session'
 import { useRouter } from 'next/navigation'
 
@@ -56,6 +58,7 @@ export default function AppShell() {
   if (!authorized) return null
 
   return (
+    <TraceProvider>
     <div className="flex h-screen bg-background text-on-surface font-body">
       <Sidebar activeTab={activeTab} onTabChange={setActiveTab} onNewChat={handleNewChat} />
 
@@ -94,20 +97,20 @@ export default function AppShell() {
 
         {/* Content */}
         <div className="flex-1 flex flex-col pt-16 pb-16 md:pb-0 overflow-hidden">
-          <AnimatePresence mode="wait">
-            {activeTab === 'chat' && (
-              <motion.div
-                key={`chat-${chatKey}`}
-                variants={tabVariants}
-                initial="initial"
-                animate="animate"
-                exit="exit"
-                className="flex-1 flex flex-col overflow-hidden"
-              >
-                <ChatView />
-              </motion.div>
-            )}
+          {/*
+            ChatView stays mounted at all times so in-memory message state survives
+            tab switches. We hide/show it with CSS only — never unmount it.
+            chatKey increment (New Chat) is the only way to truly reset it.
+          */}
+          <div
+            key={chatKey}
+            className="flex-1 flex flex-col overflow-hidden"
+            style={{ display: activeTab === 'chat' ? 'flex' : 'none' }}
+          >
+            <ChatView />
+          </div>
 
+          <AnimatePresence mode="wait">
             {activeTab === 'design' && (
               <motion.div
                 key="design"
@@ -162,6 +165,8 @@ export default function AppShell() {
           </AnimatePresence>
         </div>
       </div>
+      <TraceOverlay />
     </div>
+    </TraceProvider>
   )
 }
