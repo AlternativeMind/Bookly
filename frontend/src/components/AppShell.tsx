@@ -10,7 +10,7 @@ import HistoryView from './HistoryView'
 import SystemInfoView from './SystemInfoView'
 import TraceOverlay from './TraceOverlay'
 import { TraceProvider } from '@/lib/trace-context'
-import { clearSession, getSession } from '@/lib/session'
+import { clearSession, getSession, setSession, generateSessionId, addToSessionList } from '@/lib/session'
 import { useRouter } from 'next/navigation'
 
 type Tab = 'chat' | 'design' | 'examples' | 'history' | 'system'
@@ -32,11 +32,22 @@ export default function AppShell() {
     if (!session?.sessionId) {
       router.replace('/')
     } else {
+      // Register the current session in history if not already there
+      addToSessionList(session.sessionId)
       setAuthorized(true)
     }
   }, [router])
 
   const handleNewChat = useCallback(() => {
+    const newSessionId = generateSessionId()
+    setSession(newSessionId)
+    addToSessionList(newSessionId)
+    setActiveTab('chat')
+    setChatKey((k) => k + 1)
+  }, [])
+
+  const handleResumeSession = useCallback((sessionId: string) => {
+    setSession(sessionId)
     setActiveTab('chat')
     setChatKey((k) => k + 1)
   }, [])
@@ -146,7 +157,7 @@ export default function AppShell() {
                 exit="exit"
                 className="flex-1 flex flex-col overflow-hidden"
               >
-                <HistoryView />
+                <HistoryView onResumeSession={handleResumeSession} />
               </motion.div>
             )}
 
