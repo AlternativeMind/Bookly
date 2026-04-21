@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400;700;800;900&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "primary": "#ffa44c",
+                    "surface-bright": "#2c2c2c",
+                    "on-primary-fixed-variant": "#532b00",
+                    "surface-container-high": "#20201f",
+                    "secondary-container": "#835500",
+                    "error": "#ff7351",
+                    "tertiary-fixed": "#ffccbc",
+                    "on-secondary-fixed": "#4a2e00",
+                    "on-tertiary-fixed": "#503025",
+                    "background": "#0e0e0e",
+                    "on-error-container": "#ffd2c8",
+                    "tertiary-container": "#ffccbc",
+                    "surface-container-low": "#131313",
+                    "on-secondary": "#583700",
+                    "on-surface-variant": "#adaaaa",
+                    "inverse-surface": "#fcf9f8",
+                    "surface-variant": "#262626",
+                    "on-tertiary-fixed-variant": "#704b3f",
+                    "outline-variant": "#484847",
+                    "error-dim": "#d53d18",
+                    "tertiary-dim": "#f0beae",
+                    "primary-fixed-dim": "#ea8400",
+                    "primary-fixed": "#fd9000",
+                    "surface-container": "#1a1a1a",
+                    "secondary-fixed": "#ffc87f",
+                    "on-tertiary": "#6f4b3f",
+                    "on-secondary-fixed-variant": "#704800",
+                    "secondary-fixed-dim": "#feb64c",
+                    "inverse-primary": "#8f4f00",
+                    "tertiary-fixed-dim": "#f0beae",
+                    "surface-tint": "#ffa44c",
+                    "primary-dim": "#ea8400",
+                    "primary-container": "#fd9000",
+                    "on-error": "#450900",
+                    "inverse-on-surface": "#565555",
+                    "outline": "#767575",
+                    "tertiary": "#ffded5",
+                    "surface-container-lowest": "#000000",
+                    "on-surface": "#ffffff",
+                    "surface-container-highest": "#262626",
+                    "on-background": "#ffffff",
+                    "surface-dim": "#0e0e0e",
+                    "error-container": "#b92902",
+                    "on-primary-container": "#462400",
+                    "on-primary-fixed": "#1e0c00",
+                    "secondary": "#feb64c",
+                    "on-primary": "#552d00",
+                    "on-secondary-container": "#fff6ef",
+                    "secondary-dim": "#eea840",
+                    "surface": "#0e0e0e",
+                    "on-tertiary-container": "#664237"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Epilogue"],
+                    "body": ["Manrope"],
+                    "label": ["Manrope"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body selection:bg-primary/30">
+<!-- TopNavBar -->
+<header class="fixed top-0 w-full z-50 bg-[#0e0e0e]/80 backdrop-blur-2xl flex justify-between items-center px-6 py-4 w-full">
+<div class="flex items-center gap-3">
+<span class="text-2xl font-bold bg-gradient-to-br from-[#ffa44c] to-[#fd9000] bg-clip-text text-transparent font-['Epilogue'] tracking-tight">Bookly AI</span>
+</div>
+<div class="flex items-center gap-6">
+<button class="text-[#adaaaa] hover:text-[#ffffff] transition-colors duration-300 active:scale-95 duration-200">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+<button class="text-[#adaaaa] hover:text-[#ffffff] transition-colors duration-300 active:scale-95 duration-200">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+</div>
+</header>
+<div class="flex h-screen pt-16">
+<!-- SideNavBar -->
+<aside class="hidden md:flex flex-col fixed left-0 top-16 h-[calc(100vh-4rem)] p-6 w-64 bg-[#0e0e0e] border-r border-[#484847]/15 font-['Epilogue'] text-sm uppercase tracking-widest">
+<div class="mb-8">
+<h2 class="text-xl font-black text-[#ffffff] mb-1">The Archive</h2>
+<p class="text-[#adaaaa] text-[10px] tracking-widest normal-case">Curated Excellence</p>
+</div>
+<button class="mb-8 w-full py-3 px-4 rounded-full bg-gradient-to-br from-[#ffa44c] to-[#fd9000] text-on-primary font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all active:scale-95">
+<span class="material-symbols-outlined text-sm" data-icon="add">add</span>
+                New Chat
+            </button>
+<nav class="flex-1 space-y-2">
+<a class="flex items-center gap-3 px-4 py-3 text-[#ffa44c] border-r-4 border-[#ffa44c] bg-gradient-to-r from-[#ffa44c]/10 to-transparent transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="chat">chat</span>
+<span>Chat</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#adaaaa] hover:text-[#ffffff] hover:bg-[#131313] transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span>Recent</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#adaaaa] hover:text-[#ffffff] hover:bg-[#131313] transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+<span>FAQ</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#adaaaa] hover:text-[#ffffff] hover:bg-[#131313] transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="library_books">library_books</span>
+<span>My Collection</span>
+</a>
+</nav>
+<div class="mt-auto space-y-2 pt-6 border-t border-[#484847]/15">
+<a class="flex items-center gap-3 px-4 py-2 text-[#adaaaa] hover:text-[#ffffff] transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span>Settings</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-[#adaaaa] hover:text-[#ffffff] transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="contact_support">contact_support</span>
+<span>Support</span>
+</a>
+</div>
+</aside>
+<!-- Main Canvas -->
+<main class="flex-1 md:ml-64 flex flex-col bg-surface-dim relative">
+<!-- Hero Content / Introduction -->
+<div class="flex-1 overflow-y-auto scrollbar-hide p-8 md:p-12 max-w-4xl mx-auto w-full">
+<div class="space-y-12">
+<!-- Scholarly Welcome -->
+<section class="text-center py-12">
+<h1 class="font-headline text-5xl md:text-7xl font-black text-on-surface tracking-tighter mb-4">
+                            How may I assist your <span class="text-primary italic">scholarly</span> journey?
+                        </h1>
+<p class="text-on-surface-variant text-lg max-w-2xl mx-auto font-body">
+                            Access the collective wisdom of The Archive. Ask about literary themes, historical contexts, or cite specific volumes from your collection.
+                        </p>
+</section>
+<!-- Chat History (Asymmetric Editorial Style) -->
+<div class="space-y-8">
+<!-- AI Message -->
+<div class="flex gap-6 items-start group">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center border border-outline-variant/15 flex-shrink-0">
+<span class="material-symbols-outlined text-primary text-xl" data-icon="auto_awesome" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+</div>
+<div class="bg-surface-container-low p-6 rounded-2xl max-w-2xl border-l-2 border-primary/40 shadow-sm">
+<p class="text-on-surface leading-relaxed font-body">
+                                    I have analyzed your recent collection of 19th-century existentialist literature. Would you like to explore the recurring theme of "the absurd" in Kierkegaard's <span class="italic text-primary">Fear and Trembling</span>?
+                                </p>
+</div>
+</div>
+<!-- User Message -->
+<div class="flex gap-6 items-start justify-end group">
+<div class="bg-surface-container-high p-6 rounded-2xl max-w-xl text-on-surface border border-outline-variant/10">
+<p class="leading-relaxed font-body">
+                                    Yes, specifically how he distinguishes between the "Tragic Hero" and the "Knight of Faith". Can you pull a quote from the third chapter?
+                                </p>
+</div>
+<div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-primary text-xl" data-icon="person">person</span>
+</div>
+</div>
+<!-- AI Response with Featured Card -->
+<div class="flex gap-6 items-start group">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center border border-outline-variant/15 flex-shrink-0">
+<span class="material-symbols-outlined text-primary text-xl" data-icon="auto_awesome" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+</div>
+<div class="flex-1 space-y-4">
+<div class="bg-surface-container-low p-6 rounded-2xl border-l-2 border-primary/40">
+<p class="text-on-surface leading-relaxed mb-4">
+                                        Of course. In the context of "Problemata II", Kierkegaard posits:
+                                    </p>
+<blockquote class="pl-4 py-2 border-l border-outline text-on-surface-variant italic font-body text-lg">
+                                        "The tragic hero renounces himself in order to express the universal, the knight of faith renounces the universal in order to become the individual."
+                                    </blockquote>
+</div>
+<!-- Suggested Related Work Card -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="bg-surface-container-high p-4 rounded-xl flex items-center gap-4 hover:bg-surface-variant transition-colors cursor-pointer group/card border border-outline-variant/10">
+<div class="w-16 h-24 bg-surface-container-lowest rounded-md overflow-hidden flex-shrink-0 shadow-lg">
+<img alt="Book Cover" class="w-full h-full object-cover" data-alt="close-up of a vintage leather-bound book with gold foil title sitting on a dark wooden table with dramatic library lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA02crETjAEyaNhu9f_wLiLsiA9IyAVczjhBU0d-5SGEBvp1gkDS3a2N-xqinUTeQe7o46dQQ-tzSW5LZu6TEUYBkWmvoWdktKotJ6QSiPl9JNwXp33N_FeexJcJ7JJ00kn7bC15CmHRaLxWoCv21TT6F7iaKSmFgCfkXDbPFymtO_Tr35hWr8dYEHCFsJC-jk_U5BjXdgV0uxutnsM6JkoHth_qrhaa-k2xRt5jj4zWQEl8N7CS3Sm_MfVolk0p9_kOkYre9kz3w"/>
+</div>
+<div>
+<p class="text-xs text-primary font-bold uppercase tracking-widest mb-1">Related Volume</p>
+<h4 class="font-headline font-bold text-on-surface">The Sickness Unto Death</h4>
+<p class="text-xs text-on-surface-variant">Søren Kierkegaard, 1849</p>
+</div>
+</div>
+<div class="bg-surface-container-high p-4 rounded-xl flex items-center gap-4 hover:bg-surface-variant transition-colors cursor-pointer border border-outline-variant/10">
+<div class="w-12 h-12 rounded-full bg-secondary-container/20 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined" data-icon="auto_stories">auto_stories</span>
+</div>
+<div>
+<p class="text-xs text-secondary font-bold uppercase tracking-widest mb-1">Deep Dive</p>
+<h4 class="font-headline font-bold text-on-surface">Existential Analysis</h4>
+<p class="text-xs text-on-surface-variant">Generate 5-page summary</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="h-32"></div> <!-- Spacer for Input Area -->
+</div>
+</div>
+<!-- Chat Input Area -->
+<div class="absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-background via-background/95 to-transparent pb-10">
+<div class="max-w-4xl mx-auto">
+<div class="relative bg-surface-container-low rounded-3xl border border-outline-variant/20 shadow-2xl p-2 focus-within:border-primary/50 transition-all">
+<div class="flex items-center gap-2">
+<button class="p-3 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="attach_file">attach_file</span>
+</button>
+<textarea class="w-full bg-transparent border-none focus:ring-0 text-on-surface placeholder:text-on-surface-variant/50 py-4 resize-none font-body scrollbar-hide" placeholder="Inquire about your collection..." rows="1"></textarea>
+<div class="flex items-center gap-2 pr-2">
+<button class="p-3 text-on-surface-variant hover:text-primary transition-all active:scale-90">
+<span class="material-symbols-outlined" data-icon="mic">mic</span>
+</button>
+<button class="w-12 h-12 bg-primary text-on-primary rounded-full flex items-center justify-center hover:shadow-[0_0_20px_rgba(255,164,76,0.3)] transition-all active:scale-95">
+<span class="material-symbols-outlined" data-icon="arrow_upward">arrow_upward</span>
+</button>
+</div>
+</div>
+</div>
+<div class="flex justify-center gap-6 mt-4">
+<span class="text-[10px] text-on-surface-variant uppercase tracking-widest flex items-center gap-1">
+<span class="w-1 h-1 bg-primary rounded-full"></span>
+                            AI Scholar Online
+                        </span>
+<span class="text-[10px] text-on-surface-variant uppercase tracking-widest flex items-center gap-1">
+<span class="w-1 h-1 bg-outline rounded-full"></span>
+                            342 Volumes Indexed
+                        </span>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-2 bg-[#0e0e0e]/90 backdrop-blur-3xl border-t border-[#484847]/15 shadow-[0px_-24px_48px_rgba(0,0,0,0.5)] rounded-t-2xl">
+<div class="flex flex-col items-center justify-center bg-[#1a1a1a] text-[#ffa44c] rounded-xl px-4 py-1">
+<span class="material-symbols-outlined" data-icon="chat">chat</span>
+<span class="font-['Manrope'] text-[10px] font-semibold">Chat</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#adaaaa] hover:text-[#ffffff]">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span class="font-['Manrope'] text-[10px] font-semibold">Recent</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#adaaaa] hover:text-[#ffffff]">
+<span class="material-symbols-outlined" data-icon="menu_book">menu_book</span>
+<span class="font-['Manrope'] text-[10px] font-semibold">Collection</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#adaaaa] hover:text-[#ffffff]">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-['Manrope'] text-[10px] font-semibold">Profile</span>
+</div>
+</nav>
+</body></html>
