@@ -135,10 +135,7 @@ export default function PasscodeScreen() {
             type="submit"
             disabled={loading || passcode.length === 0}
             className="w-full py-4 px-6 rounded-full font-body font-bold text-sm tracking-wide transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            style={{ color: '#1a0a00' }}
-            style={{
-              background: 'linear-gradient(135deg, #ffa44c, #fd9000)',
-            }}
+            style={{ color: '#1a0a00', background: 'linear-gradient(135deg, #ffa44c, #fd9000)' }}
             whileHover={{ opacity: 0.9 }}
             whileTap={{ scale: 0.98 }}
           >
