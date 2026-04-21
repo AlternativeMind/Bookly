@@ -20,7 +20,7 @@ import ChatInput from './ChatInput'
 
 const EXAMPLE_CHIPS = [
   'Find me a mystery novel for teens',
-  'What Scholastic books won awards in 2023?',
+  'What books won awards in 2023?',
   'Compare Harry Potter to Percy Jackson series',
   'I want to open a support ticket',
   'How do I return a book?',
@@ -33,6 +33,7 @@ export default function ChatView() {
   const [firebaseReady, setFirebaseReady] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const unsubscribeRef = useRef<(() => void) | null>(null)
+  const historyLoadedRef = useRef(false)
 
   // Helpers for local (non-Firebase) message state
   const addMessageLocal = useCallback((message: Message) => {
@@ -117,85 +118,90 @@ export default function ChatView() {
 
       setIsStreaming(true)
 
+      // Always show messages locally immediately — never rely on onSnapshot for display
+      addMessageLocal(userMessage)
+      addMessageLocal(assistantPlaceholder)
+
+      // Persist to Firestore in the background — fire-and-forget, never block the stream
+      let assistantDocIdPromise: Promise<string | null> = Promise.resolve(null)
       if (firebaseReady && sessionId) {
-        try {
-          const messagesRef = collection(db, 'sessions', sessionId, 'messages')
-          await addDoc(messagesRef, {
-            role: 'user',
-            content: text,
-            timestamp: serverTimestamp(),
-            isComplete: true,
-          })
+        const messagesRef = collection(db, 'sessions', sessionId, 'messages')
+        assistantDocIdPromise = addDoc(messagesRef, {
+          role: 'user',
+          content: text,
+          timestamp: serverTimestamp(),
+          isComplete: true,
+        })
+          .then(() =>
+            addDoc(messagesRef, {
+              role: 'assistant',
+              content: '',
+              timestamp: serverTimestamp(),
+              isStreaming: true,
+              isComplete: false,
+            })
+          )
+          .then((ref) => ref.id)
+          .catch(() => null)
+      }
 
-          const assistantDocRef = await addDoc(messagesRef, {
-            role: 'assistant',
-            content: '',
-            timestamp: serverTimestamp(),
-            isStreaming: true,
-            isComplete: false,
-          })
+      // Stream the response — always against local assistantMsgId
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text, sessionId }),
+        })
 
-          const res = await fetch('/api/chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: text, sessionId }),
-          })
+        let accumulated = ''
+        const reader = res.body?.getReader()
+        const decoder = new TextDecoder()
 
-          let accumulated = ''
-          const reader = res.body?.getReader()
-          const decoder = new TextDecoder()
+        if (reader) {
+          while (true) {
+            const { done, value } = await reader.read()
+            if (done) break
 
-          if (reader) {
-            while (true) {
-              const { done, value } = await reader.read()
-              if (done) break
+            const chunk = decoder.decode(value, { stream: true })
+            const lines = chunk.split('\n')
 
-              const chunk = decoder.decode(value, { stream: true })
-              const lines = chunk.split('\n')
+            for (const line of lines) {
+              if (!line.startsWith('data: ')) continue
+              const data = line.slice(6).trim()
+              if (data === '[DONE]' || data === '[ERROR]') continue
 
-              for (const line of lines) {
-                if (!line.startsWith('data: ')) continue
-                const data = line.slice(6).trim()
-                if (data === '[DONE]' || data === '[ERROR]') continue
-
-                try {
-                  const parsed = JSON.parse(data) as { token: string }
-                  accumulated += parsed.token
-                  setMessages((prev) =>
-                    prev.map((m) =>
-                      m.id === assistantDocRef.id
-                        ? { ...m, content: accumulated, isStreaming: true }
-                        : m
-                    )
-                  )
-                } catch {
-                  // skip
-                }
+              try {
+                const parsed = JSON.parse(data) as { token: string }
+                accumulated += parsed.token
+                updateMessageLocal(assistantMsgId, accumulated, true)
+              } catch {
+                // skip malformed SSE lines
               }
             }
+          }
+          updateMessageLocal(assistantMsgId, accumulated, false)
 
-            await updateDoc(doc(db, 'sessions', sessionId, 'messages', assistantDocRef.id), {
+          // Write final response back to Firestore if we have a doc
+          const assistantDocId = await assistantDocIdPromise
+          if (firebaseReady && sessionId && assistantDocId) {
+            updateDoc(doc(db, 'sessions', sessionId, 'messages', assistantDocId), {
               content: accumulated,
               isStreaming: false,
               isComplete: true,
-            })
+            }).catch(() => null)
           }
-        } catch {
-          // Fallback to local mode
-          addMessageLocal(userMessage)
-          addMessageLocal(assistantPlaceholder)
-          await streamLocalResponse(text, assistantMsgId, sessionId)
         }
-      } else {
-        // Local mode — no Firebase configured
-        addMessageLocal(userMessage)
-        addMessageLocal(assistantPlaceholder)
-        await streamLocalResponse(text, assistantMsgId, sessionId)
+      } catch {
+        updateMessageLocal(
+          assistantMsgId,
+          'I encountered an error processing your request. Please try again.',
+          false
+        )
       }
 
       setIsStreaming(false)
     },
-    [isStreaming, firebaseReady, sessionId, addMessageLocal, streamLocalResponse]
+    [isStreaming, firebaseReady, sessionId, addMessageLocal, updateMessageLocal, streamLocalResponse]
   )
 
   // Resolve sessionId on mount
@@ -224,19 +230,27 @@ export default function ChatView() {
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
-        const msgs: Message[] = snapshot.docs.map((docSnap) => {
-          const data = docSnap.data()
-          return {
-            id: docSnap.id,
-            role: data.role as 'user' | 'assistant',
-            content: data.content as string,
-            timestamp:
-              data.timestamp instanceof Timestamp ? data.timestamp.toMillis() : Date.now(),
-            isStreaming: data.isStreaming as boolean | undefined,
-            isComplete: data.isComplete as boolean | undefined,
-          }
-        })
-        setMessages(msgs)
+        // Only hydrate from Firestore once on initial load (prior session history).
+        // After that, local state is authoritative to avoid stomping on active streams.
+        if (historyLoadedRef.current) return
+        historyLoadedRef.current = true
+
+        const msgs: Message[] = snapshot.docs
+          .map((docSnap) => {
+            const data = docSnap.data()
+            return {
+              id: docSnap.id,
+              role: data.role as 'user' | 'assistant',
+              content: data.content as string,
+              timestamp:
+                data.timestamp instanceof Timestamp ? data.timestamp.toMillis() : Date.now(),
+              isStreaming: false,
+              isComplete: data.isComplete as boolean | undefined,
+            }
+          })
+          .filter((m) => m.content.length > 0)
+
+        if (msgs.length > 0) setMessages(msgs)
       },
       () => {
         setFirebaseReady(false)
@@ -281,8 +295,7 @@ export default function ChatView() {
                 Welcome to <em className="not-italic text-primary">Myk&apos;s</em> Bookly Customer Service AI Bot!
               </h1>
               <p className="text-on-surface-variant text-base max-w-2xl mx-auto font-body mb-3">
-                In this POC you are going to be able to ask questions about books or Scholastic Book
-                Company, you can also open a support ticket or return a book.
+                Your Bookly Customer Service assistant. Ask about books, track orders, open a support ticket, or return a purchase.
               </p>
               <p className="text-on-surface-variant text-sm max-w-2xl mx-auto font-body mb-10">
                 Some example prompts below:

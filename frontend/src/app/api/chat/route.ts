@@ -1,42 +1,62 @@
 import { NextRequest } from 'next/server'
+import OpenAI from 'openai'
+import { getAccessToken } from '@/lib/gcp-auth'
+import { retrieve } from '@/lib/rag'
+import { SYSTEM_PROMPT } from '@/lib/system-prompt'
 
-const MOCK_RESPONSES: Record<string, string> = {
-  mystery: 'I found several compelling mystery novels matching your query. Let me highlight the top recommendations from our archive of 281,736 volumes. For teen readers with a strong female lead, "The Mystery of Hollow Hill" by Sarah Chen and "Shadows in the Stacks" by Mira Patel stand out. Both feature resourceful protagonists who rely on wit over brawn. "The Mystery of Hollow Hill" in particular has won the Young Adult Library Association award two years running.',
-  scholastic: 'Searching through our Scholastic catalog index now. In 2023, several Scholastic titles received prestigious recognition. The Newbery Medal went to "The Eyes and the Impossible" by Dave Eggers, while Caldecott honors were awarded to multiple picture books in the collection. The National Book Award for Young People\'s Literature featured three Scholastic-published finalists. Shall I pull the full citation details for any of these titles?',
-  default: 'I have searched our archive of 281,736 volumes for your query. The Illuminated Archive contains an extensive collection spanning literary fiction, young adult, children\'s literature, and academic texts. Based on your request, I can identify several highly relevant titles. Our recommendation algorithm weighs critical reception, reader reviews, thematic alignment, and grade-level appropriateness. Would you like me to narrow the results by age group, genre, or award status?',
-}
-
-function getMockResponse(message: string): string {
-  const lower = message.toLowerCase()
-  if (lower.includes('mystery') || lower.includes('detective') || lower.includes('thriller')) {
-    return MOCK_RESPONSES.mystery
-  }
-  if (lower.includes('scholastic') || lower.includes('award') || lower.includes('2023')) {
-    return MOCK_RESPONSES.scholastic
-  }
-  return MOCK_RESPONSES.default
-}
+const PROJECT_ID = process.env.GOOGLE_CLOUD_PROJECT!
+const LOCATION   = process.env.GOOGLE_CLOUD_LOCATION!
+const GROK_MODEL = process.env.GROK_MODEL_ID!  // publishers/xai/models/grok-4.20-non-reasoning
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json() as { message?: string; sessionId?: string }
+    const body    = await request.json() as { message?: string; sessionId?: string }
     const message = body.message ?? ''
 
-    const responseText = getMockResponse(message)
-    const words = responseText.split(' ')
+    if (!message.trim()) {
+      return new Response('data: [DONE]\n\n', {
+        headers: { 'Content-Type': 'text/event-stream' },
+      })
+    }
 
-    const stream = new ReadableStream({
+    // 1. Retrieve relevant chunks from Vertex RAG
+    const context = await retrieve(message)
+
+    // 2. Build messages
+    const userContent = context
+      ? `Catalog context:\n${context}\n\nUser question: ${message}`
+      : message
+
+    // 3. Fresh token for Grok call (Vertex AI uses Bearer auth, not API key)
+    const token = await getAccessToken()
+
+    const openai = new OpenAI({
+      apiKey:  token,
+      baseURL: `https://aiplatform.googleapis.com/v1/projects/${PROJECT_ID}/locations/global/endpoints/openapi`,
+    })
+
+    // 4. Stream from Grok
+    const grokStream = await openai.chat.completions.create({
+      model:  GROK_MODEL,
+      stream: true,
+      messages: [
+        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'user',   content: userContent },
+      ],
+    })
+
+    // 5. Forward as SSE (preserves existing frontend format)
+    const encoder = new TextEncoder()
+    const stream  = new ReadableStream({
       async start(controller) {
-        const encoder = new TextEncoder()
-
-        for (let i = 0; i < words.length; i++) {
-          const word = i === words.length - 1 ? words[i] : words[i] + ' '
-          const data = `data: ${JSON.stringify({ token: word })}\n\n`
-          controller.enqueue(encoder.encode(data))
-
-          await new Promise<void>((resolve) => setTimeout(resolve, 80))
+        for await (const chunk of grokStream) {
+          const token = chunk.choices[0]?.delta?.content ?? ''
+          if (token) {
+            controller.enqueue(
+              encoder.encode(`data: ${JSON.stringify({ token })}\n\n`)
+            )
+          }
         }
-
         controller.enqueue(encoder.encode('data: [DONE]\n\n'))
         controller.close()
       },
@@ -44,16 +64,17 @@ export async function POST(request: NextRequest) {
 
     return new Response(stream, {
       headers: {
-        'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache',
-        Connection: 'keep-alive',
+        'Content-Type':                'text/event-stream',
+        'Cache-Control':               'no-cache',
+        'Connection':                  'keep-alive',
         'Access-Control-Allow-Origin': '*',
       },
     })
-  } catch {
+  } catch (err) {
+    console.error('[/api/chat]', err)
     return new Response('data: [ERROR]\n\n', {
       headers: { 'Content-Type': 'text/event-stream' },
-      status: 500,
+      status:  500,
     })
   }
 }

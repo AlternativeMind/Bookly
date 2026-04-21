@@ -16,16 +16,16 @@ interface ExampleCard {
 const EXAMPLES: ExampleCard[] = [
   // Discovery
   { category: 'Discovery', prompt: 'Find me a mystery novel for teens with a strong female lead', color: 'primary' },
-  { category: 'Discovery', prompt: 'What are the best Scholastic books for reluctant readers aged 8-10?', color: 'primary' },
+  { category: 'Discovery', prompt: 'What are the best books for reluctant readers aged 8-10?', color: 'primary' },
   { category: 'Discovery', prompt: 'Recommend a series similar to the Diary of a Wimpy Kid', color: 'primary' },
   // Research
-  { category: 'Research', prompt: 'What Scholastic books won awards in 2023?', color: 'secondary' },
+  { category: 'Research', prompt: 'What books won awards in 2023?', color: 'secondary' },
   { category: 'Research', prompt: 'Compare the themes in Harry Potter and Percy Jackson', color: 'secondary' },
   { category: 'Research', prompt: 'What are the most reviewed books in the fantasy genre?', color: 'secondary' },
   // Context
   { category: 'Context', prompt: 'What grade level is Dog Man appropriate for?', color: 'primary' },
   { category: 'Context', prompt: 'Tell me about the author of Captain Underpants', color: 'primary' },
-  { category: 'Context', prompt: 'What books does Scholastic publish for early readers?', color: 'primary' },
+  { category: 'Context', prompt: 'What books do you carry for early readers?', color: 'primary' },
 ]
 
 const containerVariants = {

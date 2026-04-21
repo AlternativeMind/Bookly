@@ -1,6 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
+import { SYSTEM_PROMPT } from '@/lib/system-prompt'
 
 const container = {
   animate: { transition: { staggerChildren: 0.07 } },
@@ -9,16 +10,6 @@ const item = {
   initial: { opacity: 0, y: 8 },
   animate: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 260, damping: 22 } },
 }
-
-const SYSTEM_PROMPT_PLACEHOLDER = `You are a helpful customer service AI assistant for Bookly, powered by the Scholastic bookstore catalog. You have access to a vector database of 281,736 books.
-
-You can help users with:
-- Book discovery and recommendations
-- Questions about Scholastic Book Company
-- Opening support tickets
-- Processing book returns
-
-Always be friendly, concise, and accurate. When recommending books, include title, author, and a brief description. If you cannot find a relevant book, say so honestly rather than hallucinating titles.`
 
 export default function SystemInfoView() {
   return (
@@ -48,14 +39,18 @@ export default function SystemInfoView() {
                 className="text-[10px] font-body px-2 py-0.5 rounded-full text-on-surface-variant"
                 style={{ background: 'rgba(72,72,71,0.3)' }}
               >
-                Placeholder
+                Live
               </span>
             </div>
             <pre
-              className="font-body text-sm text-on-surface-variant leading-relaxed whitespace-pre-wrap rounded-xl p-6"
-              style={{ background: '#131313', border: '1px solid rgba(72,72,71,0.15)' }}
+              className="font-body text-sm text-on-surface-variant leading-relaxed whitespace-pre-wrap rounded-xl p-6 overflow-y-auto"
+              style={{
+                background: '#131313',
+                border: '1px solid rgba(72,72,71,0.15)',
+                maxHeight: '40vh',
+              }}
             >
-              {SYSTEM_PROMPT_PLACEHOLDER}
+              {SYSTEM_PROMPT}
             </pre>
           </motion.div>
 
