@@ -1,0 +1,28 @@
+# Internal tooling & agent config
+tools/
+embedding/
+AGENTS.md
+CLAUDE.md
+
+# Notes
+notes/
+
+# Environment
+.env
+.env.*
+!.env.*.example
+
+# OS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# Frontend (handled by frontend/.gitignore too)
+frontend/.next/
+frontend/node_modules/
+frontend/.env.local
