@@ -5,8 +5,6 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   collection,
   addDoc,
-  updateDoc,
-  doc,
   query,
   orderBy,
   onSnapshot,
@@ -121,31 +119,24 @@ export default function ChatView() {
 
       setIsStreaming(true)
 
+      // Block any pending Firebase onSnapshot from overwriting in-flight state.
+      // If the first snapshot fires after this point, we don't want it clobbering
+      // the userMsg + assistantPlaceholder we're about to add.
+      historyLoadedRef.current = true
+
       // Always show messages locally immediately — never rely on onSnapshot for display
       addMessageLocal(userMessage)
       addMessageLocal(assistantPlaceholder)
 
-      // Persist to Firestore in the background — fire-and-forget, never block the stream
-      let assistantDocIdPromise: Promise<string | null> = Promise.resolve(null)
+      // Persist user message to Firestore — fire-and-forget
       if (firebaseReady && sessionId) {
         const messagesRef = collection(db, 'sessions', sessionId, 'messages')
-        assistantDocIdPromise = addDoc(messagesRef, {
+        addDoc(messagesRef, {
           role: 'user',
           content: text,
           timestamp: serverTimestamp(),
           isComplete: true,
-        })
-          .then(() =>
-            addDoc(messagesRef, {
-              role: 'assistant',
-              content: '',
-              timestamp: serverTimestamp(),
-              isStreaming: true,
-              isComplete: false,
-            })
-          )
-          .then((ref) => ref.id)
-          .catch(() => null)
+        }).catch(() => null)
       }
 
       // Stream the response — always against local assistantMsgId
@@ -189,16 +180,16 @@ export default function ChatView() {
           updateMessageLocal(assistantMsgId, accumulated, false)
           setIsStreaming(false)
 
-          // Persist final response to Firestore — fully fire-and-forget
-          assistantDocIdPromise.then((assistantDocId) => {
-            if (firebaseReady && sessionId && assistantDocId) {
-              updateDoc(doc(db, 'sessions', sessionId, 'messages', assistantDocId), {
-                content: accumulated,
-                isStreaming: false,
-                isComplete: true,
-              }).catch(() => null)
-            }
-          })
+          // Persist completed assistant message as a single write — no placeholder/updateDoc
+          if (firebaseReady && sessionId && accumulated) {
+            const messagesRef = collection(db, 'sessions', sessionId, 'messages')
+            addDoc(messagesRef, {
+              role: 'assistant',
+              content: accumulated,
+              timestamp: serverTimestamp(),
+              isComplete: true,
+            }).catch(() => null)
+          }
         }
       } catch {
         updateMessageLocal(
