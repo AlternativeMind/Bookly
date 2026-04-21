@@ -2,6 +2,8 @@
 
 import { motion } from 'framer-motion'
 import { SYSTEM_PROMPT } from '@/lib/system-prompt'
+import { useTrace } from '@/lib/trace-context'
+import type { Verbosity } from '@/lib/trace-context'
 
 const container = {
   animate: { transition: { staggerChildren: 0.07 } },
@@ -11,7 +13,15 @@ const item = {
   animate: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 260, damping: 22 } },
 }
 
+const VERBOSITY_OPTIONS: { value: Verbosity; label: string; description: string }[] = [
+  { value: 'low',    label: 'Low',    description: 'Key pipeline events only' },
+  { value: 'medium', label: 'Medium', description: 'RAG steps + inference start' },
+  { value: 'high',   label: 'High',   description: 'All events including tokens' },
+]
+
 export default function SystemInfoView() {
+  const { settings, updateSettings } = useTrace()
+
   return (
     <div className="flex-1 overflow-y-auto scrollbar-hide p-8 md:p-12">
       <div className="max-w-3xl mx-auto">
@@ -79,6 +89,60 @@ export default function SystemInfoView() {
                   <span className="text-on-surface-variant w-48 shrink-0">{row.key}</span>
                   <span className="text-on-surface">{row.value}</span>
                 </div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Trace overlay settings */}
+          <motion.div variants={item} className="space-y-4">
+            <div className="flex items-center justify-between">
+              <p className="text-primary text-xs font-body font-bold uppercase tracking-widest">Trace Overlay</p>
+              {/* Toggle */}
+              <button
+                onClick={() => updateSettings({ enabled: !settings.enabled })}
+                className="relative w-10 h-5 rounded-full transition-colors duration-200 focus:outline-none"
+                style={{ background: settings.enabled ? '#fd9000' : 'rgba(72,72,71,0.4)' }}
+                aria-label={settings.enabled ? 'Disable trace overlay' : 'Enable trace overlay'}
+              >
+                <span
+                  className="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform duration-200"
+                  style={{ transform: settings.enabled ? 'translateX(20px)' : 'translateX(0)' }}
+                />
+              </button>
+            </div>
+            <p className="text-on-surface-variant font-body text-xs -mt-2">
+              Show real-time pipeline decisions as dismissible bubbles in the bottom-right corner.
+            </p>
+
+            {/* Verbosity selector */}
+            <div
+              className="rounded-xl overflow-hidden"
+              style={{ border: '1px solid rgba(72,72,71,0.15)', opacity: settings.enabled ? 1 : 0.4, transition: 'opacity 0.2s' }}
+            >
+              {VERBOSITY_OPTIONS.map((opt, i) => (
+                <button
+                  key={opt.value}
+                  disabled={!settings.enabled}
+                  onClick={() => updateSettings({ verbosity: opt.value })}
+                  className="w-full flex items-center gap-4 px-5 py-3 font-body text-sm text-left transition-colors"
+                  style={{
+                    background: settings.verbosity === opt.value
+                      ? 'rgba(253,144,0,0.12)'
+                      : i % 2 === 0 ? '#131313' : '#1a1a1a',
+                    cursor: settings.enabled ? 'pointer' : 'default',
+                  }}
+                >
+                  {/* Radio indicator */}
+                  <span
+                    className="w-3.5 h-3.5 rounded-full shrink-0 border-2 flex items-center justify-center transition-colors"
+                    style={{
+                      borderColor: settings.verbosity === opt.value ? '#fd9000' : 'rgba(72,72,71,0.5)',
+                      background: settings.verbosity === opt.value ? '#fd9000' : 'transparent',
+                    }}
+                  />
+                  <span className="text-on-surface font-medium w-16 shrink-0">{opt.label}</span>
+                  <span className="text-on-surface-variant">{opt.description}</span>
+                </button>
               ))}
             </div>
           </motion.div>

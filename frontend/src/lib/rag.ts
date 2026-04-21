@@ -104,15 +104,17 @@ async function fetchChunkTexts(ids: string[], token: string): Promise<ChunkDoc[]
 
 // ── Public: retrieve context for a query ─────────────────────────────────────
 
-export async function retrieve(query: string): Promise<string> {
+export async function retrieve(query: string): Promise<{ context: string; chunkCount: number }> {
   const token   = await getAccessToken()
   const vector  = await embedQuery(query, token)
   const ids     = await vectorSearch(vector, token)
   const chunks  = await fetchChunkTexts(ids, token)
 
-  if (chunks.length === 0) return ''
+  if (chunks.length === 0) return { context: '', chunkCount: 0 }
 
-  return chunks
+  const context = chunks
     .map((c, i) => `[${i + 1}] ${c.text}`)
     .join('\n\n')
+
+  return { context, chunkCount: chunks.length }
 }

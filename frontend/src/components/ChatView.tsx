@@ -17,6 +17,8 @@ import { db } from '@/lib/firebase'
 import { getSession } from '@/lib/session'
 import MessageBubble, { Message } from './MessageBubble'
 import ChatInput from './ChatInput'
+import { useTrace } from '@/lib/trace-context'
+import type { Verbosity } from '@/lib/trace-context'
 
 const EXAMPLE_CHIPS = [
   'Find me a mystery novel for teens',
@@ -27,6 +29,7 @@ const EXAMPLE_CHIPS = [
 ]
 
 export default function ChatView() {
+  const { addTrace } = useTrace()
   const [messages, setMessages] = useState<Message[]>([])
   const [isStreaming, setIsStreaming] = useState(false)
   const [sessionId, setSessionId] = useState<string | null>(null)
@@ -171,25 +174,31 @@ export default function ChatView() {
               if (data === '[DONE]' || data === '[ERROR]') continue
 
               try {
-                const parsed = JSON.parse(data) as { token: string }
-                accumulated += parsed.token
-                updateMessageLocal(assistantMsgId, accumulated, true)
+                const parsed = JSON.parse(data) as { token?: string; trace?: boolean; level?: Verbosity; message?: string; detail?: string }
+                if (parsed.trace && parsed.level && parsed.message) {
+                  addTrace({ message: parsed.message, detail: parsed.detail, minLevel: parsed.level })
+                } else if (parsed.token) {
+                  accumulated += parsed.token
+                  updateMessageLocal(assistantMsgId, accumulated, true)
+                }
               } catch {
                 // skip malformed SSE lines
               }
             }
           }
           updateMessageLocal(assistantMsgId, accumulated, false)
+          setIsStreaming(false)
 
-          // Write final response back to Firestore if we have a doc
-          const assistantDocId = await assistantDocIdPromise
-          if (firebaseReady && sessionId && assistantDocId) {
-            updateDoc(doc(db, 'sessions', sessionId, 'messages', assistantDocId), {
-              content: accumulated,
-              isStreaming: false,
-              isComplete: true,
-            }).catch(() => null)
-          }
+          // Persist final response to Firestore — fully fire-and-forget
+          assistantDocIdPromise.then((assistantDocId) => {
+            if (firebaseReady && sessionId && assistantDocId) {
+              updateDoc(doc(db, 'sessions', sessionId, 'messages', assistantDocId), {
+                content: accumulated,
+                isStreaming: false,
+                isComplete: true,
+              }).catch(() => null)
+            }
+          })
         }
       } catch {
         updateMessageLocal(
@@ -197,11 +206,10 @@ export default function ChatView() {
           'I encountered an error processing your request. Please try again.',
           false
         )
+        setIsStreaming(false)
       }
-
-      setIsStreaming(false)
     },
-    [isStreaming, firebaseReady, sessionId, addMessageLocal, updateMessageLocal, streamLocalResponse]
+    [isStreaming, firebaseReady, sessionId, addMessageLocal, updateMessageLocal, addTrace]
   )
 
   // Resolve sessionId on mount

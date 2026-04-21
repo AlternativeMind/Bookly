@@ -1,6 +1,17 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
+import { collection, query, orderBy, onSnapshot, Timestamp } from 'firebase/firestore'
+import { db } from '@/lib/firebase'
+import { getSession } from '@/lib/session'
+
+interface MessageSnap {
+  id: string
+  role: 'user' | 'assistant'
+  content: string
+  timestamp: number
+}
 
 const container = {
   animate: { transition: { staggerChildren: 0.06 } },
@@ -10,7 +21,50 @@ const item = {
   animate: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 260, damping: 22 } },
 }
 
+function formatTime(ms: number) {
+  return new Date(ms).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+}
+
 export default function HistoryView() {
+  const [messages, setMessages] = useState<MessageSnap[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
+
+  useEffect(() => {
+    const session = getSession()
+    if (!session?.sessionId) { setLoading(false); return }
+
+    const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID
+    if (!projectId) { setLoading(false); return }
+
+    const messagesRef = collection(db, 'sessions', session.sessionId, 'messages')
+    const q = query(messagesRef, orderBy('timestamp', 'asc'))
+
+    const unsub = onSnapshot(
+      q,
+      (snap) => {
+        const msgs: MessageSnap[] = snap.docs
+          .map((d) => {
+            const data = d.data()
+            return {
+              id: d.id,
+              role: data.role as 'user' | 'assistant',
+              content: data.content as string,
+              timestamp: data.timestamp instanceof Timestamp ? data.timestamp.toMillis() : Date.now(),
+            }
+          })
+          .filter((m) => m.content?.length > 0 && m.role === 'user' || m.content?.length > 0 && m.role === 'assistant')
+        setMessages(msgs)
+        setLoading(false)
+      },
+      () => {
+        setError(true)
+        setLoading(false)
+      }
+    )
+    return () => unsub()
+  }, [])
+
   return (
     <div className="flex-1 overflow-y-auto scrollbar-hide p-8 md:p-12">
       <div className="max-w-3xl mx-auto">
@@ -18,7 +72,7 @@ export default function HistoryView() {
           variants={container}
           initial="initial"
           animate="animate"
-          className="space-y-10"
+          className="space-y-8"
         >
           {/* Header */}
           <motion.div variants={item}>
@@ -26,49 +80,58 @@ export default function HistoryView() {
               Chat History
             </h1>
             <p className="text-on-surface-variant font-body text-sm">
-              Your previous sessions will appear here once Firebase is connected.
+              This session&apos;s conversation, synced from Firestore.
             </p>
           </motion.div>
 
-          {/* Placeholder sessions */}
-          <motion.div variants={item} className="space-y-3">
-            {[
-              { title: 'Book recommendations for ages 8–10', date: 'Today', preview: 'Can you suggest some adventure books...' },
-              { title: 'Award-winning books 2023', date: 'Yesterday', preview: 'What books won the most awards last year...' },
-              { title: 'Return request — Order #48821', date: '2 days ago', preview: 'I would like to return a damaged copy of...' },
-            ].map((session) => (
-              <motion.div
-                key={session.title}
-                whileHover={{ x: 4 }}
-                className="flex items-start justify-between p-5 rounded-xl cursor-pointer transition-colors"
-                style={{ background: '#131313', border: '1px solid rgba(72,72,71,0.15)' }}
-              >
-                <div className="flex-1 min-w-0">
-                  <p className="text-on-surface font-body font-semibold text-sm truncate mb-1">
-                    {session.title}
-                  </p>
-                  <p className="text-on-surface-variant font-body text-xs truncate">
-                    {session.preview}
-                  </p>
+          {/* States */}
+          {loading && (
+            <motion.div variants={item} className="flex items-center gap-3 text-on-surface-variant font-body text-sm">
+              <span className="material-symbols-outlined animate-spin text-base">autorenew</span>
+              Loading history…
+            </motion.div>
+          )}
+
+          {!loading && error && (
+            <motion.div variants={item} className="rounded-xl p-5 font-body text-sm text-on-surface-variant"
+              style={{ background: '#131313', border: '1px solid rgba(72,72,71,0.15)' }}>
+              Could not load history. Check your connection and try again.
+            </motion.div>
+          )}
+
+          {!loading && !error && messages.length === 0 && (
+            <motion.div variants={item} className="rounded-xl p-6 text-center"
+              style={{ background: 'rgba(255,164,76,0.06)', border: '1px solid rgba(255,164,76,0.15)' }}>
+              <span className="material-symbols-outlined text-primary text-3xl mb-3 block">chat_bubble</span>
+              <p className="text-on-surface-variant font-body text-sm">
+                No messages yet. Start a conversation in the Chat tab.
+              </p>
+            </motion.div>
+          )}
+
+          {!loading && !error && messages.length > 0 && (
+            <motion.div variants={item} className="space-y-2">
+              {messages.map((msg) => (
+                <div
+                  key={msg.id}
+                  className="flex gap-4 px-5 py-4 rounded-xl font-body text-sm"
+                  style={{
+                    background: msg.role === 'user' ? '#1a1a1a' : '#131313',
+                    border: '1px solid rgba(72,72,71,0.12)',
+                  }}
+                >
+                  <span
+                    className="shrink-0 text-xs font-bold uppercase tracking-widest mt-0.5 w-16"
+                    style={{ color: msg.role === 'user' ? 'rgba(255,255,255,0.35)' : '#fd9000' }}
+                  >
+                    {msg.role === 'user' ? 'You' : 'Bookly'}
+                  </span>
+                  <p className="text-on-surface leading-relaxed flex-1 whitespace-pre-wrap">{msg.content}</p>
+                  <span className="text-on-surface-variant text-xs shrink-0 mt-0.5">{formatTime(msg.timestamp)}</span>
                 </div>
-                <span className="text-on-surface-variant font-body text-xs ml-4 mt-0.5 shrink-0">
-                  {session.date}
-                </span>
-              </motion.div>
-            ))}
-          </motion.div>
-
-          {/* Coming soon callout */}
-          <motion.div
-            variants={item}
-            className="rounded-xl p-6 text-center"
-            style={{ background: 'rgba(255,164,76,0.06)', border: '1px solid rgba(255,164,76,0.15)' }}
-          >
-            <span className="material-symbols-outlined text-primary text-3xl mb-3 block">history</span>
-            <p className="text-on-surface-variant font-body text-sm">
-              Live session history will sync here from Firestore once Firebase credentials are configured.
-            </p>
-          </motion.div>
+              ))}
+            </motion.div>
+          )}
         </motion.div>
       </div>
     </div>
