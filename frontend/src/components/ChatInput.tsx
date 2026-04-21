@@ -89,8 +89,8 @@ export default function ChatInput({ onSend, disabled = false }: ChatInputProps) 
 
         <div className="flex items-center gap-4 px-4 pb-3 text-[11px] text-on-surface-variant font-body">
           <span className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-primary inline-block"></span>
-            AI Scholar Online
+            <span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block"></span>
+            Bookly Agent Online
           </span>
           <span className="flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-on-surface-variant/40 inline-block"></span>

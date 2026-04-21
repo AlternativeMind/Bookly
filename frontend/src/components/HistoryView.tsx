@@ -34,7 +34,7 @@ export default function HistoryView() {
           <motion.div variants={item} className="space-y-3">
             {[
               { title: 'Book recommendations for ages 8–10', date: 'Today', preview: 'Can you suggest some adventure books...' },
-              { title: 'Scholastic award winners 2023', date: 'Yesterday', preview: 'What books won the most awards last year...' },
+              { title: 'Award-winning books 2023', date: 'Yesterday', preview: 'What books won the most awards last year...' },
               { title: 'Return request — Order #48821', date: '2 days ago', preview: 'I would like to return a damaged copy of...' },
             ].map((session) => (
               <motion.div
