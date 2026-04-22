@@ -28,6 +28,16 @@ export default function AppShell() {
   const [chatKey, setChatKey] = useState(0)
   const [authorized, setAuthorized] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [keyboardOpen, setKeyboardOpen] = useState(false)
+
+  // Hide mobile bottom nav when virtual keyboard is open
+  useEffect(() => {
+    const vv = window.visualViewport
+    if (!vv) return
+    const handler = () => setKeyboardOpen(vv.height < window.innerHeight * 0.75)
+    vv.addEventListener('resize', handler)
+    return () => vv.removeEventListener('resize', handler)
+  }, [])
 
   useEffect(() => {
     const session = getSession()
@@ -91,7 +101,7 @@ export default function AppShell() {
   return (
     <TraceProvider>
     <div className="flex h-screen bg-background text-on-surface font-body">
-      <Sidebar activeTab={activeTab} onTabChange={setActiveTab} onNewChat={handleNewChat} onSettings={() => setSettingsOpen(true)} onSupport={handleSupport} />
+      <Sidebar activeTab={activeTab} onTabChange={setActiveTab} onNewChat={handleNewChat} onSettings={() => setSettingsOpen(true)} onSupport={handleSupport} keyboardOpen={keyboardOpen} />
 
       {/* Main area */}
       <div className="flex-1 md:ml-64 flex flex-col h-screen">
@@ -157,7 +167,7 @@ export default function AppShell() {
         </header>
 
         {/* Content */}
-        <div className="flex-1 flex flex-col pt-16 pb-16 md:pb-0 overflow-hidden">
+        <div className={`flex-1 flex flex-col pt-16 md:pb-0 overflow-hidden ${keyboardOpen ? 'pb-0' : 'pb-16'}`}>
           {/*
             ChatView stays mounted at all times so in-memory message state survives
             tab switches. We hide/show it with CSS only — never unmount it.

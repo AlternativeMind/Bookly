@@ -11,6 +11,7 @@ interface SidebarProps {
   onNewChat: () => void
   onSettings: () => void
   onSupport: () => void
+  keyboardOpen?: boolean
 }
 
 const navItems: { tab: Tab; label: string; icon: string }[] = [
@@ -21,7 +22,7 @@ const navItems: { tab: Tab; label: string; icon: string }[] = [
   { tab: 'system', label: 'System Info', icon: 'settings_suggest' },
 ]
 
-export default function Sidebar({ activeTab, onTabChange, onNewChat, onSettings, onSupport }: SidebarProps) {
+export default function Sidebar({ activeTab, onTabChange, onNewChat, onSettings, onSupport, keyboardOpen }: SidebarProps) {
   return (
     <>
       {/* Desktop sidebar */}
@@ -110,8 +111,8 @@ export default function Sidebar({ activeTab, onTabChange, onNewChat, onSettings,
         </div>
       </aside>
 
-      {/* Mobile bottom nav */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-surface-container flex items-center justify-around px-2 py-2 border-t border-outline-variant/15">
+      {/* Mobile bottom nav — hidden when keyboard is open */}
+      <nav className={`md:hidden fixed bottom-0 left-0 right-0 z-50 bg-surface-container flex items-center justify-around px-2 py-2 border-t border-outline-variant/15 transition-transform duration-150 ${keyboardOpen ? 'translate-y-full' : 'translate-y-0'}`}>
         {navItems.map(({ tab, label, icon }) => {
           const isActive = activeTab === tab
           return (
