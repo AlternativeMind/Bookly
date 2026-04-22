@@ -40,6 +40,15 @@ export default function AppShell() {
     }
   }, [router])
 
+  useEffect(() => {
+    const handleSwitchTab = (e: Event) => {
+      const tab = (e as CustomEvent<{ tab: Tab }>).detail?.tab
+      if (tab) setActiveTab(tab)
+    }
+    window.addEventListener('bookly:switch-tab', handleSwitchTab)
+    return () => window.removeEventListener('bookly:switch-tab', handleSwitchTab)
+  }, [])
+
   const handleNewChat = useCallback(() => {
     const newSessionId = generateSessionId()
     setSession(newSessionId)
