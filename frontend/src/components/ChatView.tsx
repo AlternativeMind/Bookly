@@ -289,7 +289,7 @@ export default function ChatView() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
               transition={{ type: 'spring', stiffness: 200, damping: 20 }}
-              className="text-center px-6 pt-8 pb-4 md:px-12 md:pt-16"
+              className="text-center px-6 pt-8 pb-4 md:pt-16 max-w-3xl mx-auto w-full"
             >
               <h1 className="font-headline text-2xl md:text-5xl font-black text-on-surface tracking-tighter mb-3 md:mb-6">
                 Welcome to <em className="not-italic text-primary">Myk&apos;s</em> Bookly AI!
