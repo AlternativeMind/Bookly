@@ -4,77 +4,19 @@ Exposes POST /chat as an SSE stream consumed by the Next.js frontend proxy.
 
 Request:  { "message": str, "session_id": str }
 Response: text/event-stream  data: {"token":"..."} | data: {"trace":true,...} | data: [DONE]
+
+Phase 5: session history is managed by FirestoreCheckpointer inside the graph.
+         No manual history fetching needed here.
 """
 import json
-import os
-import httpx
-import google.auth
-import google.auth.transport.requests
 
 from fastapi import FastAPI
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
-from graph import agent, AgentState
+from graph import agent
 
 app = FastAPI(title="Bookly Agent")
-
-PROJECT_ID    = os.environ["GOOGLE_CLOUD_PROJECT"]
-HISTORY_LIMIT = 10
-
-_creds, _ = google.auth.default(scopes=["https://www.googleapis.com/auth/cloud-platform"])
-
-
-def _token() -> str:
-    req = google.auth.transport.requests.Request()
-    _creds.refresh(req)
-    return _creds.token
-
-
-# ── Firestore session history ─────────────────────────────────────────────────
-
-async def fetch_history(session_id: str) -> list[dict]:
-    """Query the last HISTORY_LIMIT completed messages for a session."""
-    if not session_id:
-        return []
-    parent = f"projects/{PROJECT_ID}/databases/default/documents/sessions/{session_id}"
-    url    = f"https://firestore.googleapis.com/v1/{parent}:runQuery"
-    payload = {
-        "structuredQuery": {
-            "from":    [{"collectionId": "messages"}],
-            "where": {
-                "fieldFilter": {
-                    "field": {"fieldPath": "isComplete"},
-                    "op":    "EQUAL",
-                    "value": {"booleanValue": True},
-                }
-            },
-            "orderBy": [{"field": {"fieldPath": "timestamp"}, "direction": "ASCENDING"}],
-        }
-    }
-    try:
-        async with httpx.AsyncClient() as client:
-            resp = await client.post(
-                url,
-                json=payload,
-                headers={"Authorization": f"Bearer {_token()}"},
-                timeout=10,
-            )
-        if not resp.is_success:
-            print(f"[history] Firestore query failed {resp.status_code}")
-            return []
-        messages = []
-        for r in resp.json():
-            if "document" in r:
-                fields  = r["document"]["fields"]
-                role    = fields.get("role",    {}).get("stringValue", "")
-                content = fields.get("content", {}).get("stringValue", "")
-                if role in ("user", "assistant") and content:
-                    messages.append({"role": role, "content": content})
-        return messages[-HISTORY_LIMIT:]
-    except Exception as e:
-        print(f"[history] error: {e}")
-        return []
 
 
 # ── SSE helpers ───────────────────────────────────────────────────────────────
@@ -106,26 +48,17 @@ async def health() -> dict:
 async def chat(req: ChatRequest) -> StreamingResponse:
     async def event_stream():
         try:
-            # 1. Session history
-            yield _sse_trace("high", "History · loading session…")
-            history = await fetch_history(req.session_id)
-            if history:
-                yield _sse_trace("medium", f"History · {len(history)} prior message{'s' if len(history) != 1 else ''} loaded")
+            # LangGraph config — thread_id links this run to its Firestore checkpoint
+            config = {"configurable": {"thread_id": req.session_id}} if req.session_id else {}
 
-            # 2. Run LangGraph agent — stream events
-            initial_state: AgentState = {
-                "message":      req.message,
-                "history":      history,
-                "context":      "",
-                "chunks_found": 0,
-                "response":     "",
-            }
+            # Minimal input — history is restored from checkpoint automatically
+            initial_state = {"message": req.message}
 
-            async for event in agent.astream_events(initial_state, version="v2"):
+            async for event in agent.astream_events(initial_state, config, version="v2"):
                 kind = event["event"]
                 name = event.get("name", "")
 
-                # RAG node lifecycle traces
+                # RAG node traces
                 if kind == "on_chain_start" and name == "rag":
                     yield _sse_trace("medium", "RAG · embedding query…")
 
@@ -153,7 +86,6 @@ async def chat(req: ChatRequest) -> StreamingResponse:
                     if isinstance(content, str) and content:
                         yield _sse_token(content)
                     elif isinstance(content, list):
-                        # Some providers return list of content blocks
                         for block in content:
                             if isinstance(block, dict) and block.get("type") == "text":
                                 text = block.get("text", "")
@@ -170,8 +102,8 @@ async def chat(req: ChatRequest) -> StreamingResponse:
         event_stream(),
         media_type="text/event-stream",
         headers={
-            "Cache-Control": "no-cache",
-            "Connection":    "keep-alive",
-            "X-Accel-Buffering": "no",  # disable nginx buffering for SSE
+            "Cache-Control":     "no-cache",
+            "Connection":        "keep-alive",
+            "X-Accel-Buffering": "no",
         },
     )
