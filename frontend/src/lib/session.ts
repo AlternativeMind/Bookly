@@ -61,3 +61,8 @@ export function addToSessionList(sessionId: string): void {
   // Keep last 50 sessions
   localStorage.setItem(SESSIONS_KEY, JSON.stringify(list.slice(-50)))
 }
+
+export function clearSessionList(): void {
+  if (typeof window === 'undefined') return
+  localStorage.removeItem(SESSIONS_KEY)
+}

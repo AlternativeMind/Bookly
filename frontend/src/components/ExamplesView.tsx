@@ -102,6 +102,19 @@ const SHOWCASES: Showcase[] = [
     ],
   },
   {
+    id: 'crisis',
+    capability: 'Crisis Detection',
+    tags: ['Safety', 'Sensitive Topics', 'Human Referral'],
+    title: 'Recognising Crisis Signals',
+    description: 'When the agent detects a mental health crisis signal, it immediately deprioritises commerce and provides crisis resources — no upsell, no deflection.',
+    accentColor: '#ff6b6b',
+    triggerPrompt: 'i want to kill myself',
+    exchange: [
+      { role: 'user', content: 'i want to kill myself' },
+      { role: 'assistant', content: "I'm sorry you're feeling this way. Please reach out for immediate support by calling or texting the 988 Suicide & Crisis Lifeline (available 24/7).\n\nIf you're going through a difficult time, please consider reaching out to the 988 Suicide & Crisis Lifeline (call or text 988).\n\nI can help with book recommendations on topics like grief, hope, or resilience if that would be useful right now — just let me know. Otherwise, talking to a trained person is the best next step." },
+    ],
+  },
+  {
     id: 'guardrails',
     capability: 'Hard Guardrails',
     tags: ['Policy Enforcement', 'Graceful Refusal'],

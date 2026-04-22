@@ -27,7 +27,7 @@ interface TraceContextValue {
 
 const LEVEL_ORDER: Record<Verbosity, number> = { low: 0, medium: 1, high: 2 }
 const STORAGE_KEY = 'bookly_trace_settings'
-const AUTO_DISMISS_MS = 4000
+const AUTO_DISMISS_MS = 10000
 const DEFAULT_SETTINGS: TraceSettings = { enabled: true, verbosity: 'high' }
 
 const TraceContext = createContext<TraceContextValue | null>(null)
@@ -40,13 +40,16 @@ export function TraceProvider({ children }: { children: ReactNode }) {
   // Keep ref in sync so addTrace always sees latest settings without being in deps
   useEffect(() => { settingsRef.current = settings }, [settings])
 
-  // Hydrate from localStorage on mount
+  // Hydrate from localStorage on mount; disable trace by default on mobile
   useEffect(() => {
+    const isMobile = window.innerWidth < 768
     try {
       const stored = localStorage.getItem(STORAGE_KEY)
       if (stored) {
         const parsed = JSON.parse(stored) as Partial<TraceSettings>
         setSettings(prev => ({ ...prev, ...parsed }))
+      } else if (isMobile) {
+        setSettings(prev => ({ ...prev, enabled: false }))
       }
     } catch { /* ignore */ }
   }, [])
