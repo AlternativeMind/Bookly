@@ -279,8 +279,8 @@ export default function ChatView() {
   }, [sendMessage])
 
   return (
-    <div className="flex flex-col h-full min-h-0">
-      <div className="flex-1 overflow-y-auto scrollbar-hide min-h-0 p-6 md:p-12 max-w-4xl mx-auto w-full pb-4">
+    <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide min-h-0">
         <AnimatePresence mode="wait">
           {messages.length === 0 ? (
             <motion.div
@@ -289,19 +289,18 @@ export default function ChatView() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
               transition={{ type: 'spring', stiffness: 200, damping: 20 }}
-              className="text-center py-4 md:py-16"
+              className="text-center px-6 pt-8 pb-4 md:px-12 md:pt-16"
             >
               <h1 className="font-headline text-2xl md:text-5xl font-black text-on-surface tracking-tighter mb-3 md:mb-6">
-                Welcome to <em className="not-italic text-primary">Myk&apos;s</em> Bookly Customer Service AI Bot!
+                Welcome to <em className="not-italic text-primary">Myk&apos;s</em> Bookly AI!
               </h1>
-              <p className="hidden md:block text-on-surface-variant text-base max-w-2xl mx-auto font-body mb-3">
-                Track orders, process returns, check loyalty points, get book recommendations, or raise a support ticket — all in one place.
+              <p className="text-on-surface-variant text-sm md:text-base max-w-2xl mx-auto font-body mb-3">
+                Track orders, process returns, check loyalty points, get book recommendations, or raise a support ticket.
               </p>
               <div className="hidden md:block">
                 <p className="text-on-surface-variant text-sm max-w-2xl mx-auto font-body mb-10">
                   Try one of these or ask anything:
                 </p>
-
                 <div className="flex flex-wrap gap-3 justify-center">
                   {EXAMPLE_CHIPS.map((chip) => (
                     <motion.button
@@ -323,7 +322,7 @@ export default function ChatView() {
               key="messages"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="space-y-8"
+              className="px-4 py-6 md:px-12 md:py-12 max-w-4xl mx-auto space-y-8"
             >
               {messages.map((message) => (
                 <MessageBubble key={message.id} message={message} />
