@@ -279,8 +279,8 @@ export default function ChatView() {
   }, [sendMessage])
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-y-auto scrollbar-hide p-8 md:p-12 max-w-4xl mx-auto w-full pb-4">
+    <div className="flex flex-col h-full min-h-0">
+      <div className="flex-1 overflow-y-auto scrollbar-hide min-h-0 p-6 md:p-12 max-w-4xl mx-auto w-full pb-4">
         <AnimatePresence mode="wait">
           {messages.length === 0 ? (
             <motion.div
@@ -289,12 +289,12 @@ export default function ChatView() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
               transition={{ type: 'spring', stiffness: 200, damping: 20 }}
-              className="text-center py-8 md:py-16"
+              className="text-center py-4 md:py-16"
             >
-              <h1 className="font-headline text-4xl md:text-5xl font-black text-on-surface tracking-tighter mb-6">
+              <h1 className="font-headline text-2xl md:text-5xl font-black text-on-surface tracking-tighter mb-3 md:mb-6">
                 Welcome to <em className="not-italic text-primary">Myk&apos;s</em> Bookly Customer Service AI Bot!
               </h1>
-              <p className="text-on-surface-variant text-base max-w-2xl mx-auto font-body mb-3">
+              <p className="hidden md:block text-on-surface-variant text-base max-w-2xl mx-auto font-body mb-3">
                 Track orders, process returns, check loyalty points, get book recommendations, or raise a support ticket — all in one place.
               </p>
               <div className="hidden md:block">
