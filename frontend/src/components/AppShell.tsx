@@ -92,8 +92,9 @@ export default function AppShell() {
           style={{ borderBottom: '1px solid rgba(72,72,71,0.10)' }}
         >
           <div className="flex items-center gap-3">
-            <span
-              className="text-2xl font-black font-headline tracking-tight"
+            <button
+              onClick={handleNewChat}
+              className="text-2xl font-black font-headline tracking-tight transition-opacity hover:opacity-80 active:scale-95"
               style={{
                 background: 'linear-gradient(135deg, #ffa44c, #fd9000)',
                 WebkitBackgroundClip: 'text',
@@ -102,7 +103,7 @@ export default function AppShell() {
               }}
             >
               Bookly AI
-            </span>
+            </button>
           </div>
 
           <div className="flex items-center gap-4">

@@ -62,12 +62,43 @@ export default function SystemInfoView() {
               style={{ border: '1px solid rgba(72,72,71,0.15)' }}
             >
               {[
-                { key: 'Inference Model', value: 'Grok 4.1 Fast (Non-Reasoning)' },
-                { key: 'Embedding Model', value: 'Vertex AI Text Embeddings' },
+                { key: 'Inference Model', value: 'xai/grok-4.20-non-reasoning (Vertex AI Model Garden)' },
+                { key: 'Embedding Model', value: 'Vertex AI Text Embeddings (text-embedding-005)' },
                 { key: 'Vector Store', value: 'Vertex AI Vector Search — bookly-index' },
                 { key: 'Indexed Documents', value: '281,736 book chunks' },
-                { key: 'Retrieval Strategy', value: 'RAG — top-k semantic search' },
-                { key: 'Streaming', value: 'SSE (Server-Sent Events)' },
+                { key: 'Retrieval Strategy', value: 'RAG — top-8 semantic search (skip for order/return intents)' },
+                { key: 'Streaming', value: 'SSE (Server-Sent Events) — token-level' },
+              ].map((row, i) => (
+                <div
+                  key={row.key}
+                  className="flex items-center px-5 py-3 font-body text-sm"
+                  style={{
+                    background: i % 2 === 0 ? '#131313' : '#1a1a1a',
+                  }}
+                >
+                  <span className="text-on-surface-variant w-48 shrink-0">{row.key}</span>
+                  <span className="text-on-surface">{row.value}</span>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Agent pipeline */}
+          <motion.div variants={item} className="space-y-3">
+            <p className="text-primary text-xs font-body font-bold uppercase tracking-widest mb-3">Agent Pipeline</p>
+            <div
+              className="rounded-xl overflow-hidden"
+              style={{ border: '1px solid rgba(72,72,71,0.15)' }}
+            >
+              {[
+                { key: 'Framework', value: 'LangGraph (Python) + FastAPI' },
+                { key: 'Graph Topology', value: 'classify → (optional) rag → generate' },
+                { key: 'Classify Node', value: 'Keyword intent routing + hard escalation guardrails' },
+                { key: 'RAG Node', value: 'Vertex AI embed → Vector Search → Firestore batch-get' },
+                { key: 'Generate Node', value: 'ChatOpenAI (Grok) with tool-calling loop (max 5 iterations)' },
+                { key: 'Tools', value: 'catalog_search, get_order, submit_return, lookup_policy, similar_readers, escalate_to_human' },
+                { key: 'Session Memory', value: 'Firestore checkpointer — history capped at 20 messages' },
+                { key: 'Output Safety', value: 'PII scan (CC, SSN, prompt-injection) before response leaves graph' },
               ].map((row, i) => (
                 <div
                   key={row.key}
@@ -92,8 +123,12 @@ export default function SystemInfoView() {
             >
               {[
                 { key: 'GCP Project', value: 'myk-bot' },
-                { key: 'Hosting', value: 'Cloud Run (us-central1)' },
-                { key: 'Database', value: 'Firebase Firestore' },
+                { key: 'Region', value: 'us-central1' },
+                { key: 'Frontend', value: 'Next.js 15 App Router — Cloud Run' },
+                { key: 'Agent Service', value: 'FastAPI + LangGraph — Cloud Run' },
+                { key: 'Session Persistence', value: 'Firebase Firestore' },
+                { key: 'Secrets', value: 'Google Secret Manager' },
+                { key: 'CI / CD', value: 'GitHub Actions + Workload Identity Federation' },
                 { key: 'Domain', value: 'myk.bot' },
               ].map((row, i) => (
                 <div

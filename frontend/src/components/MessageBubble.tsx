@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion'
 import clsx from 'clsx'
+import ReactMarkdown from 'react-markdown'
 
 export interface Message {
   id: string
@@ -47,18 +48,44 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
             : 'bg-surface-container-high max-w-xl border border-outline-variant/10'
         )}
       >
-        <p className="whitespace-pre-wrap">
-          {message.content}
-          {message.isStreaming && (
-            <motion.span
-              animate={{ opacity: [1, 0, 1] }}
-              transition={{ repeat: Infinity, duration: 0.8 }}
-              className="inline-block ml-0.5 text-primary font-bold"
+        {isAssistant ? (
+          <div className="text-sm">
+            <ReactMarkdown
+              components={{
+                p:      ({ children }) => <p className="mb-3 last:mb-0">{children}</p>,
+                strong: ({ children }) => <strong className="font-semibold text-primary">{children}</strong>,
+                em:     ({ children }) => <em className="italic text-on-surface-variant">{children}</em>,
+                ul:     ({ children }) => <ul className="list-disc list-outside pl-4 mb-3 space-y-1">{children}</ul>,
+                ol:     ({ children }) => <ol className="list-decimal list-outside pl-4 mb-3 space-y-1">{children}</ol>,
+                li:     ({ children }) => <li className="leading-relaxed">{children}</li>,
+                h1:     ({ children }) => <h1 className="font-headline font-semibold text-base mb-2 mt-1">{children}</h1>,
+                h2:     ({ children }) => <h2 className="font-headline font-semibold mb-2 mt-1">{children}</h2>,
+                h3:     ({ children }) => <h3 className="font-semibold mb-1 mt-1">{children}</h3>,
+                code:   ({ children }) => (
+                  <code className="px-1 py-0.5 rounded bg-surface-container-high font-mono text-xs text-primary">
+                    {children}
+                  </code>
+                ),
+                hr:     () => <hr className="border-outline-variant/20 my-3" />,
+              }}
             >
-              |
-            </motion.span>
-          )}
-        </p>
+              {message.content}
+            </ReactMarkdown>
+            {message.isStreaming && (
+              <motion.span
+                animate={{ opacity: [1, 0, 1] }}
+                transition={{ repeat: Infinity, duration: 0.8 }}
+                className="inline-block ml-0.5 text-primary font-bold"
+              >
+                |
+              </motion.span>
+            )}
+          </div>
+        ) : (
+          <p className="whitespace-pre-wrap text-sm">
+            {message.content}
+          </p>
+        )}
       </div>
 
       {!isAssistant && (

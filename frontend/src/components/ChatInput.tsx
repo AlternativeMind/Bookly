@@ -42,23 +42,16 @@ export default function ChatInput({ onSend, disabled = false }: ChatInputProps) 
   return (
     <div className="p-4 md:p-6">
       <div
-        className="max-w-4xl mx-auto rounded-3xl bg-surface-container-low transition-all duration-200 focus-within:border-primary/50"
-        style={{ border: '1px solid rgba(72,72,71,0.20)' }}
+        className="max-w-4xl mx-auto rounded-3xl bg-surface-container transition-all duration-200 focus-within:border-primary/40"
+        style={{ border: '1px solid rgba(72,72,71,0.35)', boxShadow: '0 4px 32px rgba(0,0,0,0.35)' }}
       >
-        <div className="flex items-end gap-3 px-4 py-3">
-          <button
-            className="text-on-surface-variant hover:text-on-surface transition-colors flex-shrink-0 mb-1"
-            aria-label="Attach file"
-          >
-            <span className="material-symbols-outlined text-[22px]">attach_file</span>
-          </button>
-
+        <div className="flex items-end gap-3 px-5 py-4">
           <textarea
             ref={textareaRef}
             value={value}
             onChange={handleInput}
             onKeyDown={handleKeyDown}
-            placeholder="Ask about books, authors, recommendations..."
+            placeholder="Ask about orders, returns, book recommendations, or open a support ticket..."
             rows={1}
             disabled={disabled}
             className="flex-1 bg-transparent text-on-surface placeholder-on-surface-variant resize-none outline-none font-body text-sm leading-6 py-1 scrollbar-hide"
@@ -87,14 +80,10 @@ export default function ChatInput({ onSend, disabled = false }: ChatInputProps) 
           </div>
         </div>
 
-        <div className="flex items-center gap-4 px-4 pb-3 text-[11px] text-on-surface-variant font-body">
+        <div className="flex items-center gap-4 px-5 pb-3 text-[11px] text-on-surface-variant font-body">
           <span className="flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block"></span>
             Bookly Agent Online
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-on-surface-variant/40 inline-block"></span>
-            281,736 Volumes Indexed
           </span>
         </div>
       </div>
