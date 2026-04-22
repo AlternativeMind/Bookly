@@ -25,7 +25,7 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ type: 'spring', stiffness: 300, damping: 24 }}
-      className={clsx('flex gap-6 items-start', !isAssistant && 'justify-end')}
+      className={clsx('flex gap-3 md:gap-6 items-start w-full min-w-0', !isAssistant && 'justify-end')}
     >
       {isAssistant && (
         <div className="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center flex-shrink-0"
@@ -42,10 +42,10 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
 
       <div
         className={clsx(
-          'p-6 rounded-2xl leading-relaxed font-body text-on-surface',
+          'p-4 md:p-6 rounded-2xl leading-relaxed font-body text-on-surface min-w-0',
           isAssistant
             ? 'bg-surface-container-low max-w-2xl border-l-2 border-primary/40'
-            : 'bg-surface-container-high max-w-xl border border-outline-variant/10'
+            : 'bg-surface-container-high max-w-[85%] md:max-w-xl border border-outline-variant/10'
         )}
       >
         {isAssistant ? (

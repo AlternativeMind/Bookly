@@ -30,13 +30,21 @@ export default function AppShell() {
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [keyboardOpen, setKeyboardOpen] = useState(false)
 
-  // Hide mobile bottom nav when virtual keyboard is open
+  // Hide mobile bottom nav when virtual keyboard is open.
+  // Uses visualViewport (precise) with window resize as fallback for older Android browsers.
   useEffect(() => {
-    const vv = window.visualViewport
-    if (!vv) return
-    const handler = () => setKeyboardOpen(vv.height < window.innerHeight * 0.75)
-    vv.addEventListener('resize', handler)
-    return () => vv.removeEventListener('resize', handler)
+    const initialHeight = window.innerHeight
+    const check = () => {
+      const vv = window.visualViewport
+      const h = vv ? vv.height : window.innerHeight
+      setKeyboardOpen(h < initialHeight * 0.75)
+    }
+    window.visualViewport?.addEventListener('resize', check)
+    window.addEventListener('resize', check)
+    return () => {
+      window.visualViewport?.removeEventListener('resize', check)
+      window.removeEventListener('resize', check)
+    }
   }, [])
 
   useEffect(() => {
@@ -100,11 +108,11 @@ export default function AppShell() {
 
   return (
     <TraceProvider>
-    <div className="flex h-screen bg-background text-on-surface font-body">
+    <div className="flex h-dvh bg-background text-on-surface font-body">
       <Sidebar activeTab={activeTab} onTabChange={setActiveTab} onNewChat={handleNewChat} onSettings={() => setSettingsOpen(true)} onSupport={handleSupport} keyboardOpen={keyboardOpen} />
 
       {/* Main area */}
-      <div className="flex-1 md:ml-64 flex flex-col h-screen">
+      <div className="flex-1 md:ml-64 flex flex-col h-dvh">
         {/* Top nav */}
         <header
           className="fixed top-0 left-0 right-0 z-40 flex justify-between items-center px-6 py-4 bg-background/80 backdrop-blur-2xl"
