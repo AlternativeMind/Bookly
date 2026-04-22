@@ -21,11 +21,12 @@ import { useTrace } from '@/lib/trace-context'
 import type { Verbosity } from '@/lib/trace-context'
 
 const EXAMPLE_CHIPS = [
+  'Where is my order?',
+  'I want to return a book',
   'Find me a mystery novel for teens',
-  'What books won awards in 2023?',
-  'Compare Harry Potter to Percy Jackson series',
-  'I want to open a support ticket',
-  'How do I return a book?',
+  'Open a support ticket',
+  'What are my loyalty points?',
+  'Recommend something like The Martian',
 ]
 
 export default function ChatView() {
@@ -303,10 +304,10 @@ export default function ChatView() {
                 Welcome to <em className="not-italic text-primary">Myk&apos;s</em> Bookly Customer Service AI Bot!
               </h1>
               <p className="text-on-surface-variant text-base max-w-2xl mx-auto font-body mb-3">
-                Your Bookly Customer Service assistant. Ask about books, track orders, open a support ticket, or return a purchase.
+                Track orders, process returns, check loyalty points, get book recommendations, or raise a support ticket — all in one place.
               </p>
               <p className="text-on-surface-variant text-sm max-w-2xl mx-auto font-body mb-10">
-                Some example prompts below:
+                Try one of these or ask anything:
               </p>
 
               <div className="flex flex-wrap gap-3 justify-center">
