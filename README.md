@@ -1,6 +1,6 @@
 # Bookly AI
 
-**Live demo:** https://bookly-frontend-283467385921.us-central1.run.app
+**Live demo:** https://myk.bot
 
 A proof-of-concept AI customer service assistant for a bookstore, built as a standalone showcase for the Decagon Solutions Engineering Take-Home Assignment. The application is intentionally self-contained — every design decision, architectural choice, and honest trade-off is documented inside the app itself, not in a separate write-up.
 
