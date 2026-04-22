@@ -28,7 +28,7 @@ interface TraceContextValue {
 const LEVEL_ORDER: Record<Verbosity, number> = { low: 0, medium: 1, high: 2 }
 const STORAGE_KEY = 'bookly_trace_settings'
 const AUTO_DISMISS_MS = 4000
-const DEFAULT_SETTINGS: TraceSettings = { enabled: true, verbosity: 'medium' }
+const DEFAULT_SETTINGS: TraceSettings = { enabled: true, verbosity: 'high' }
 
 const TraceContext = createContext<TraceContextValue | null>(null)
 

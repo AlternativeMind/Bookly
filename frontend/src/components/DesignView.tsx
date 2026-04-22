@@ -27,7 +27,7 @@ const STACK_TABLE = [
 ]
 
 const PIPELINE_STEPS = [
-  'Firecrawl scrapes Scholastic bookstore pages into structured markdown',
+  'Firecrawl scrapes Bookly bookstore pages into structured markdown',
   'Metadata extraction: title, author, ISBN, grade level, genre, awards',
   'text-embedding-004 encodes each book record into a 768-dim vector',
   'Vectors upserted to Vertex AI Vector Search index with metadata filters',
@@ -77,7 +77,7 @@ export default function DesignView() {
           </p>
           <p className="font-body text-on-surface-variant leading-relaxed">
             Bookly is an AI-powered bookstore assistant built on a RAG (Retrieval-Augmented
-            Generation) pipeline. It ingests the Scholastic catalog, embeds every volume into a
+            Generation) pipeline. It ingests the Bookly catalog, embeds every volume into a
             vector store, and grounds Gemini responses in real bibliographic data — delivering
             precise, hallucination-resistant book recommendations at conversational speed.
           </p>
