@@ -145,7 +145,7 @@ export default function PasscodeScreen() {
                 Verifying...
               </span>
             ) : (
-              'Enter The Archive'
+              'Support Agent Initialized'
             )}
           </motion.button>
         </motion.form>

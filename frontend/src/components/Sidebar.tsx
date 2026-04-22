@@ -9,6 +9,8 @@ interface SidebarProps {
   activeTab: Tab
   onTabChange: (tab: Tab) => void
   onNewChat: () => void
+  onSettings: () => void
+  onSupport: () => void
 }
 
 const navItems: { tab: Tab; label: string; icon: string }[] = [
@@ -19,7 +21,7 @@ const navItems: { tab: Tab; label: string; icon: string }[] = [
   { tab: 'system', label: 'System Info', icon: 'settings_suggest' },
 ]
 
-export default function Sidebar({ activeTab, onTabChange, onNewChat }: SidebarProps) {
+export default function Sidebar({ activeTab, onTabChange, onNewChat, onSettings, onSupport }: SidebarProps) {
   return (
     <>
       {/* Desktop sidebar */}
@@ -75,20 +77,20 @@ export default function Sidebar({ activeTab, onTabChange, onNewChat }: SidebarPr
           className="mt-auto space-y-1 pt-6"
           style={{ borderTop: '1px solid rgba(72,72,71,0.15)' }}
         >
-          <a
-            href="#"
-            className="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:text-on-surface transition-all font-body text-sm"
+          <button
+            onClick={onSettings}
+            className="w-full flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:text-on-surface transition-all font-body text-sm text-left"
           >
             <span className="material-symbols-outlined text-[18px]">settings</span>
             <span>Settings</span>
-          </a>
-          <a
-            href="#"
-            className="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:text-on-surface transition-all font-body text-sm"
+          </button>
+          <button
+            onClick={onSupport}
+            className="w-full flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:text-on-surface transition-all font-body text-sm text-left"
           >
             <span className="material-symbols-outlined text-[18px]">contact_support</span>
             <span>Support</span>
-          </a>
+          </button>
         </div>
       </aside>
 

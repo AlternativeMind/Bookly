@@ -9,6 +9,7 @@ import ExamplesView from './ExamplesView'
 import HistoryView from './HistoryView'
 import SystemInfoView from './SystemInfoView'
 import TraceOverlay from './TraceOverlay'
+import SettingsPanel from './SettingsPanel'
 import { TraceProvider } from '@/lib/trace-context'
 import { clearSession, getSession, setSession, generateSessionId, addToSessionList } from '@/lib/session'
 import { useRouter } from 'next/navigation'
@@ -26,6 +27,7 @@ export default function AppShell() {
   const [activeTab, setActiveTab] = useState<Tab>('chat')
   const [chatKey, setChatKey] = useState(0)
   const [authorized, setAuthorized] = useState(false)
+  const [settingsOpen, setSettingsOpen] = useState(false)
 
   useEffect(() => {
     const session = getSession()
@@ -44,6 +46,15 @@ export default function AppShell() {
     addToSessionList(newSessionId)
     setActiveTab('chat')
     setChatKey((k) => k + 1)
+  }, [])
+
+  const handleSupport = useCallback(() => {
+    setActiveTab('chat')
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('bookly:send-prompt', {
+        detail: { prompt: 'I would like some support and open a support ticket' },
+      }))
+    }, 200)
   }, [])
 
   const handleResumeSession = useCallback((sessionId: string) => {
@@ -71,7 +82,7 @@ export default function AppShell() {
   return (
     <TraceProvider>
     <div className="flex h-screen bg-background text-on-surface font-body">
-      <Sidebar activeTab={activeTab} onTabChange={setActiveTab} onNewChat={handleNewChat} />
+      <Sidebar activeTab={activeTab} onTabChange={setActiveTab} onNewChat={handleNewChat} onSettings={() => setSettingsOpen(true)} onSupport={handleSupport} />
 
       {/* Main area */}
       <div className="flex-1 md:ml-64 flex flex-col h-screen">
@@ -177,6 +188,7 @@ export default function AppShell() {
         </div>
       </div>
       <TraceOverlay />
+      <SettingsPanel open={settingsOpen} onClose={() => setSettingsOpen(false)} />
     </div>
     </TraceProvider>
   )
