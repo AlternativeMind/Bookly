@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { collection, query, orderBy, limit, getDocs, Timestamp } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
-import { getSession, getSessionList, type SessionRecord } from '@/lib/session'
+import { getSession, getSessionList, clearSessionList, type SessionRecord } from '@/lib/session'
 
 interface SessionPreview {
   sessionId: string
@@ -85,7 +85,22 @@ export default function HistoryView({ onResumeSession }: { onResumeSession: (id:
 
           {/* Header */}
           <motion.div variants={item}>
-            <h1 className="font-headline text-4xl font-black text-on-surface tracking-tighter mb-2">Chat History</h1>
+            <div className="flex items-start justify-between gap-4 mb-2">
+              <h1 className="font-headline text-4xl font-black text-on-surface tracking-tighter">Chat History</h1>
+              {sessions.length > 0 && (
+                <button
+                  onClick={() => {
+                    clearSessionList()
+                    setSessions([])
+                  }}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-body text-xs text-on-surface-variant hover:text-on-surface transition-colors mt-2"
+                  style={{ border: '1px solid rgba(72,72,71,0.25)' }}
+                >
+                  <span className="material-symbols-outlined text-sm">delete_sweep</span>
+                  Clear history
+                </button>
+              )}
+            </div>
             <p className="text-on-surface-variant font-body text-sm">
               Click any session to resume that conversation.
             </p>

@@ -289,7 +289,7 @@ export default function ChatView() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
               transition={{ type: 'spring', stiffness: 200, damping: 20 }}
-              className="text-center py-16"
+              className="text-center py-8 md:py-16"
             >
               <h1 className="font-headline text-4xl md:text-5xl font-black text-on-surface tracking-tighter mb-6">
                 Welcome to <em className="not-italic text-primary">Myk&apos;s</em> Bookly Customer Service AI Bot!
@@ -297,23 +297,25 @@ export default function ChatView() {
               <p className="text-on-surface-variant text-base max-w-2xl mx-auto font-body mb-3">
                 Track orders, process returns, check loyalty points, get book recommendations, or raise a support ticket — all in one place.
               </p>
-              <p className="text-on-surface-variant text-sm max-w-2xl mx-auto font-body mb-10">
-                Try one of these or ask anything:
-              </p>
+              <div className="hidden md:block">
+                <p className="text-on-surface-variant text-sm max-w-2xl mx-auto font-body mb-10">
+                  Try one of these or ask anything:
+                </p>
 
-              <div className="flex flex-wrap gap-3 justify-center">
-                {EXAMPLE_CHIPS.map((chip) => (
-                  <motion.button
-                    key={chip}
-                    onClick={() => sendMessage(chip)}
-                    className="px-5 py-2.5 rounded-full bg-surface-container-high text-on-surface-variant hover:text-on-surface text-sm font-body transition-all"
-                    style={{ border: '1px solid rgba(72,72,71,0.15)' }}
-                    whileHover={{ scale: 1.02, backgroundColor: '#262626' }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    {chip}
-                  </motion.button>
-                ))}
+                <div className="flex flex-wrap gap-3 justify-center">
+                  {EXAMPLE_CHIPS.map((chip) => (
+                    <motion.button
+                      key={chip}
+                      onClick={() => sendMessage(chip)}
+                      className="px-5 py-2.5 rounded-full bg-surface-container-high text-on-surface-variant hover:text-on-surface text-sm font-body transition-all"
+                      style={{ border: '1px solid rgba(72,72,71,0.15)' }}
+                      whileHover={{ scale: 1.02, backgroundColor: '#262626' }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      {chip}
+                    </motion.button>
+                  ))}
+                </div>
               </div>
             </motion.div>
           ) : (
