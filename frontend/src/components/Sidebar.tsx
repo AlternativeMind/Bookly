@@ -112,7 +112,7 @@ export default function Sidebar({ activeTab, onTabChange, onNewChat, onSettings,
       </aside>
 
       {/* Mobile bottom nav — hidden when keyboard is open */}
-      <nav className={`md:hidden fixed bottom-0 left-0 right-0 z-50 bg-surface-container flex items-center justify-around px-2 py-2 border-t border-outline-variant/15 transition-transform duration-150 ${keyboardOpen ? 'translate-y-full' : 'translate-y-0'}`}>
+      <nav className={`fixed bottom-0 left-0 right-0 z-50 bg-surface-container flex items-center justify-around px-2 py-2 border-t border-outline-variant/15 ${keyboardOpen ? 'hidden' : 'md:hidden'}`}>
         {navItems.map(({ tab, label, icon }) => {
           const isActive = activeTab === tab
           return (
