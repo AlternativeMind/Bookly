@@ -44,6 +44,25 @@ Bookly/
 
 ---
 
+## Build stats
+
+Built entirely with Claude Code (Sonnet 4.6) as the autonomous engineering agent.
+
+| | |
+|---|---|
+| **Calendar time** | 2 days, 6 hours (Apr 20–23, 2026) |
+| **Commits** | 35 |
+| **Pull requests** | 17 |
+| **Files created/modified** | 63 |
+| **Lines of code added** | 17,771 |
+| **Claude sessions** | 9 |
+| **Tokens processed** | ~165M (input + output + cache) |
+| **Estimated API cost** | ~$90 |
+
+The high token count is dominated by prompt cache reads (~155M) — large context windows reused across turns as the codebase grew. Net generative output was ~590K tokens.
+
+---
+
 ## Access
 
 The app is password protected. Passcode available on request.

@@ -108,7 +108,7 @@ export default function AppShell() {
 
   return (
     <TraceProvider>
-    <div className="flex h-dvh bg-background text-on-surface font-body">
+    <div className="flex h-dvh bg-background text-on-surface font-body overflow-x-hidden">
       <Sidebar activeTab={activeTab} onTabChange={setActiveTab} onNewChat={handleNewChat} onSettings={() => setSettingsOpen(true)} onSupport={handleSupport} keyboardOpen={keyboardOpen} />
 
       {/* Main area */}
