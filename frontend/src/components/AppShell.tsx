@@ -7,6 +7,9 @@ import ChatView from './ChatView'
 import DesignView from './DesignView'
 import ExamplesView from './ExamplesView'
 import HistoryView from './HistoryView'
+import InsightsView from './InsightsView'
+import WatchTowerView from './WatchTowerView'
+import GraphView from './GraphView'
 import SystemInfoView from './SystemInfoView'
 import TraceOverlay from './TraceOverlay'
 import SettingsPanel from './SettingsPanel'
@@ -14,7 +17,7 @@ import { TraceProvider } from '@/lib/trace-context'
 import { clearSession, getSession, setSession, generateSessionId, addToSessionList } from '@/lib/session'
 import { useRouter } from 'next/navigation'
 
-type Tab = 'chat' | 'design' | 'examples' | 'history' | 'system'
+type Tab = 'chat' | 'design' | 'examples' | 'history' | 'system' | 'insights' | 'watchtower' | 'graph'
 
 const tabVariants = {
   initial: { opacity: 0, x: 8 },
@@ -226,6 +229,45 @@ export default function AppShell() {
                 className="flex-1 flex flex-col overflow-hidden"
               >
                 <HistoryView onResumeSession={handleResumeSession} />
+              </motion.div>
+            )}
+
+            {activeTab === 'insights' && (
+              <motion.div
+                key="insights"
+                variants={tabVariants}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                className="flex-1 flex flex-col overflow-hidden"
+              >
+                <InsightsView />
+              </motion.div>
+            )}
+
+            {activeTab === 'watchtower' && (
+              <motion.div
+                key="watchtower"
+                variants={tabVariants}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                className="flex-1 flex flex-col overflow-hidden"
+              >
+                <WatchTowerView />
+              </motion.div>
+            )}
+
+            {activeTab === 'graph' && (
+              <motion.div
+                key="graph"
+                variants={tabVariants}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                className="flex-1 flex flex-col overflow-hidden"
+              >
+                <GraphView />
               </motion.div>
             )}
 

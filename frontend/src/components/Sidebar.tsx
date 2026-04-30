@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion'
 import clsx from 'clsx'
 
-type Tab = 'chat' | 'design' | 'examples' | 'history' | 'system'
+type Tab = 'chat' | 'design' | 'examples' | 'history' | 'system' | 'insights' | 'watchtower' | 'graph'
 
 interface SidebarProps {
   activeTab: Tab
@@ -15,11 +15,14 @@ interface SidebarProps {
 }
 
 const navItems: { tab: Tab; label: string; icon: string }[] = [
-  { tab: 'chat', label: 'Chat', icon: 'chat' },
-  { tab: 'history', label: 'History', icon: 'history' },
-  { tab: 'examples', label: 'Examples', icon: 'auto_awesome' },
-  { tab: 'design', label: 'Design', icon: 'design_services' },
-  { tab: 'system', label: 'System Info', icon: 'settings_suggest' },
+  { tab: 'chat',       label: 'Chat',         icon: 'chat' },
+  { tab: 'history',    label: 'Conversations', icon: 'history' },
+  { tab: 'insights',   label: 'Insights',      icon: 'insights' },
+  { tab: 'watchtower', label: 'WatchTower',    icon: 'crisis_alert' },
+  { tab: 'graph',      label: 'Graph',         icon: 'account_tree' },
+  { tab: 'examples',   label: 'Examples',      icon: 'auto_awesome' },
+  { tab: 'design',     label: 'Design',        icon: 'design_services' },
+  { tab: 'system',     label: 'System Info',   icon: 'settings_suggest' },
 ]
 
 export default function Sidebar({ activeTab, onTabChange, onNewChat, onSettings, onSupport, keyboardOpen }: SidebarProps) {
@@ -112,7 +115,7 @@ export default function Sidebar({ activeTab, onTabChange, onNewChat, onSettings,
       </aside>
 
       {/* Mobile bottom nav — hidden when keyboard is open */}
-      <nav className={`fixed bottom-0 left-0 right-0 z-50 bg-surface-container flex items-center justify-around px-2 py-2 border-t border-outline-variant/15 ${keyboardOpen ? 'hidden' : 'md:hidden'}`}>
+      <nav className={`fixed bottom-0 left-0 right-0 z-50 bg-surface-container flex items-center overflow-x-auto scrollbar-hide px-2 py-2 border-t border-outline-variant/15 ${keyboardOpen ? 'hidden' : 'md:hidden'}`}>
         {navItems.map(({ tab, label, icon }) => {
           const isActive = activeTab === tab
           return (
